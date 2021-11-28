@@ -322,7 +322,7 @@ def grades(request, item):
                            if(mean<=b.obtained_marks*a.weightage):
                                per_a=1
                            per=(per_a+per)*0.5
-                           data.append([p_tot,b.obtained_marks*a.weightage,mean,low])
+                           data.append([p_tot,b.obtained_marks*a.weightage/(a.total_marks*a.weightage/100),mean/(a.total_marks*a.weightage/100),low/(a.total_marks*a.weightage/100)])
                            p_tot+=1
                dict2['total']+=dict1[a.name]
            if w_total!=0:
@@ -350,7 +350,7 @@ def overall_stats(request,item):
                   for wrk in obj.work_set.all():
                       mean,low=fetch(wrk.name)
                       print(mean,low)
-                      data.append([tot,mean,low])
+                      data.append([tot,mean/(wrk.total_marks*wrk.weightage/100),low/(wrk.total_marks*wrk.weightage/100)])
                       tot+=1
                   data_json=json.dumps(data)
                   return render(request,'ov.html',{'name':item, 'data':data_json})
