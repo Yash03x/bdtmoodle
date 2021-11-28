@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kw@rry-_^&=$@&!cukofy)20*lduxg40hn$^qi_5)#j_e1j&b)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['bdtmoodle.herokuapp.com','127.0.0.1']
 
