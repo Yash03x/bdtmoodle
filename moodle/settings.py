@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-kw@rry-_^&=$@&!cukofy)20*lduxg40hn$^qi_5)#j_e1j&b)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['bdtmoodle.herokuapp.com']
+ALLOWED_HOSTS = ['bdtmoodle.herokuapp.com','127.0.0.1']
 
 
 # Application definition
