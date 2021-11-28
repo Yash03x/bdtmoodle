@@ -1,9 +1,36 @@
+<style>
+.content {
+  max-width: 500px;
+  margin: auto;
+}
 
-<div class="container">
+.btn {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+.btn-primary {
+  background-color: white;
+  color: black;
+  border: 2px solid #e7e7e7;
+  border-radius: 12px;
+}
+.btn-primary:hover {background-color: #6665657a;}
+</style>
+
+<div class="container content" style="background-color:#acd8e6" >
     <br/>  
-    <p style="text-align:center;">
-        <h4>You have only one chance to enter the correct otp</h4>
-        <h5>please generate one more otp in case you entered a wrong otp</h5>
+    <p >
+        <h4 style = "font-family: 'Trebuchet MS', sans-serif;">You have only one chance to enter the correct otp</h4>
+        <h5 style = "font-family: 'Trebuchet MS', sans-serif;">please generate one more otp in case you entered a wrong otp</h5>
     </p>
     <br/>
     <form method='POST' enctype="multipart/form-data">
