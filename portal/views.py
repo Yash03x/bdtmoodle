@@ -371,7 +371,7 @@ def fetch(wrk):
                 mean=mean/tot
             if low==2000:
                 low=0
-        return (mean,low)
+            return (mean,low)
 
 def course_chat(request, item):
     current = Person.objects.get(user = request.user)
