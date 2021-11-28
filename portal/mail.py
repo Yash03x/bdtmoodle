@@ -90,7 +90,7 @@ def eval_notif(name,rec_add,wrk,crs):
     message = MIMEMultipart()
     message['From'] = sender_address
     message['To'] = receiver_address
-    message['Subject'] = 'Submission for '+crs   #The subject line
+    message['Subject'] = 'Evaluation in '+crs   #The subject line
     #The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
     #Create SMTP session for sending the mail

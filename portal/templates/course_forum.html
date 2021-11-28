@@ -6,8 +6,11 @@
 
 {% block page_content %}
 <div class="container">
-    <br/>  
-    <h4>{{ item }}'s Course Forum</h4>
+    <br/>
+    <p style="text-align:right;">
+      <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{name}}/">Back</a>
+    </p>
+    <h4>{{ name }}'s Course Forum</h4>
     <p>
     {% for t in txt %} 
         <li>

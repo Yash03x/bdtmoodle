@@ -7,10 +7,14 @@
 {% block page_content %}
 <div class="container">
     <br/> 
+    <p style="text-align:right;">
+        <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{item}}/evaluate_work/">Back</a>
+    </p>
     <!--<h1 style="font-size:200%;">{{Person.user.username}}</h1> -->
     <p style="text-align:center;">
         <a role="button" class="btn btn-primary btn-lg" href="graded">Uplaod csv</a>
-        <a role="button" class="btn btn-primary btn-lg" href="grader">Upload Grader</a>
+        <!--<a role="button" class="btn btn-primary btn-lg" href="grader">Upload Grader</a>-->
+        <a role="button" class="btn btn-primary btn-lg" href="statistics">Statistics</a>
         <h4>Select submission to Evaluate {{ name }}......... 
         {% for u in assignments %}
         <br/>

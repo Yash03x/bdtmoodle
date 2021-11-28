@@ -10,6 +10,9 @@ from datetime import datetime
 import pytz
 import random
 import pandas as pd
+import json
+import threading
+import os
 import subprocess
 
 utc=pytz.UTC
@@ -133,7 +136,7 @@ def todo(request):
         if(Work.objects.all().count() != 0):
             for w in c.work_set.all():
                 if(w.deadline):
-                    if(w.deadline > utc.localize(datetime.now()) ):
+                    if(w.deadline < utc.localize(datetime.now()) ):
                         continue
                 found = False
                 for a in w.assignment_set.all():
@@ -267,10 +270,108 @@ def enter_course(request, item):
         return render(request,'stud_look.html',args)
 
 #################################################
-#def statistics(request, item):
-###############################################
-#def grades(request, item):
+def statistics(request, item,wrk):
+ #should pass data and name
+  data=[['student name','marks']]
+  p_data=[]
+  dict={'max':0,'average':0,'min':0,'median':0}
+  name=wrk
+  if request.user.is_authenticated:
+    for obj in Work.objects.all():
+        if(obj.name==wrk):
+            if(request.user.username==obj.crs.educator.user.username):
+                for sub in obj.assignment_set.all():
+                    data.append([sub.name,str(sub.obtained_marks)])
+                    p_data.append([sub.name,float(sub.obtained_marks)])
+                data_json=json.dumps(data)
+                name_json=json.dumps(name)
+                df=pd.DataFrame(p_data,columns=['student_name','marks'])
+                dict['max']=df['marks'].max()
+                dict['average']=df['marks'].mean()
+                dict['min']=df['marks'].min()
+                dict['median']=df['marks'].median()
+                dict['std']=df['marks'].std()
+                return render(request,'stats.html',{'item':item, 'wrk':wrk, 'data':data_json,'name':name_json,'dict':dict})
+            break
+    return redirect('/course_page/')
+    
 
+###############################################
+def grades(request, item):
+  if request.user.is_authenticated:
+   dict1={}
+   dict2={'total':0}
+   p_tot=0
+   data=[['id','marks','mean_marks','lowest_marks']]
+   per=1
+   for obj in Course.objects.all():
+       if(obj.name==item):
+           w_total=0
+           for a in obj.work_set.all():
+              if a!=None:
+               w_total+=a.weightage*a.total_marks/100
+               dict1[a.name]=0
+               for b in a.assignment_set.all():
+                   if(b.name==request.user.username):
+                       if(b.obtained_marks==-1):
+                           dict1[a.name]=0
+                       else:
+                           dict1[a.name]=b.obtained_marks*a.weightage
+                           mean,low=fetch(a.name)
+                           per_a=0
+                           if(mean<=b.obtained_marks*a.weightage):
+                               per_a=1
+                           per=(per_a+per)*0.5
+                           data.append([p_tot,b.obtained_marks*a.weightage,mean,low])
+                           p_tot+=1
+               dict2['total']+=dict1[a.name]
+           if w_total!=0:
+                for i in dict1.keys():
+                        dict1[i]=dict1[i]/w_total
+                dict2['total']=dict2['total']/w_total
+           break
+   data_json=json.dumps(data)
+   if(per==0):
+       per='alarming'
+   elif(per>0.5):
+       per='excellent'
+   else:
+       per='avarage'
+   return render(request,'grade_page.html',{'name':item, 'd1':dict1,'d2':dict2,'data':data_json,'performance':per})
+
+
+def overall_stats(request,item):
+    data=[['id','mean','lowest']]
+    tot=0
+    if request.user.is_authenticated:
+        for obj in Course.objects.all():
+            if obj.name==item:
+                if obj.educator.user.username==request.user.username:
+                  for wrk in obj.work_set.all():
+                      mean,low=fetch(wrk.name)
+                      print(mean,low)
+                      data.append([tot,mean,low])
+                      tot+=1
+                  data_json=json.dumps(data)
+                  return render(request,'ov.html',{'name':item, 'data':data_json})
+                
+def fetch(wrk):
+    mean=0
+    low=2000
+    tot=0
+    for obj in Work.objects.all():
+        if(obj.name==wrk):
+            for j in obj.assignment_set.all():
+               if j.obtained_marks!=-1:
+                  mean+=j.obtained_marks*obj.weightage
+                  tot+=1
+                  if low>j.obtained_marks*obj.weightage:
+                     low=j.obtained_marks*obj.weightage
+            if(tot!=0):
+                mean=mean/tot
+            if low==2000:
+                low=0
+        return (mean,low)
 
 def course_chat(request, item):
     current = Person.objects.get(user = request.user)
@@ -301,15 +402,21 @@ def announce(request, item):
         if request.POST.get("chkvalue"):
             a = Announcements(crs=c, content=request.POST.get("chkvalue"))
             a.save()
-            announce_notif(c.educator.user.username,c.educator.user.email,item,request.POST.get("chkvalue"))
+            #announce_notif(c.educator.user.username,c.educator.user.email,item,request.POST.get("chkvalue"))
+            t = threading.Thread(target=announce_notif, args=(c.educator.user.username,c.educator.user.email,item,request.POST.get("chkvalue")))
+            t.start()
             for i in c.ta.all():
-                announce_notif(i.user.username,i.user.email,item,request.POST.get("chkvalue"))
+                #announce_notif(i.user.username,i.user.email,item,request.POST.get("chkvalue"))
+                t = threading.Thread(target=announce_notif, args=(i.user.username,i.user.email,item,request.POST.get("chkvalue")))
+                t.start()
             for i in c.students.all():
-                announce_notif(i.user.username,i.user.email,item,request.POST.get("chkvalue"))
+                #announce_notif(i.user.username,i.user.email,item,request.POST.get("chkvalue"))
+                t = threading.Thread(target=announce_notif, args=(i.user.username,i.user.email,item,request.POST.get("chkvalue")))
+                t.start()
             path = '/course_page/'+item+'/'
             return redirect(path)         
     else:
-        return render(request,'announce.html')    
+        return render(request,'announce.html',{'item':item})    
 
 
 def members(request, item):
@@ -334,7 +441,7 @@ def add_ta(request, item):
         path = '/course_page/'+item+'/members/'
         return redirect(path)        
     else:
-        return render(request,'add_ta.html',{'people':people})    
+        return render(request,'add_ta.html',{'name':item, 'people':people})    
 
 def remove_ta(request, item):
     c = Course.objects.get(name = item)
@@ -351,7 +458,7 @@ def remove_ta(request, item):
         path = '/course_page/'+item+'/members/'
         return redirect(path)         
     else:
-        return render(request,'remove_ta.html',{'people':people})  
+        return render(request,'remove_ta.html',{'name':item, 'people':people})  
 
 def add_stud(request, item):
     c = Course.objects.get(name = item)
@@ -368,7 +475,7 @@ def add_stud(request, item):
         path = '/course_page/'+item+'/members/'
         return redirect(path)         
     else:
-        return render(request,'add_stud.html',{'people':people}) 
+        return render(request,'add_stud.html',{'name':item, 'people':people}) 
 
 def remove_stud(request, item):
     c = Course.objects.get(name = item)
@@ -385,7 +492,7 @@ def remove_stud(request, item):
         path = '/course_page/'+item+'/members/'
         return redirect(path)         
     else:
-        return render(request,'remove_stud.html',{'people':people})  
+        return render(request,'remove_stud.html',{'name':item, 'people':people})  
 
 def Logout(request):
     if request.user.is_authenticated:
@@ -403,21 +510,27 @@ def create(request, item):
             ass=Work(crs=c,name=form.cleaned_data['name'],total_marks=form.cleaned_data['total_marks'],deadline=form.cleaned_data['deadline'],weightage=form.cleaned_data['weightage_parameter'])
             ass.save()
             code = ass.crs.name + '.' + ass.name
-            assign_notif(c.educator.user.username,c.educator.user.email,code,0)
+            #assign_notif(c.educator.user.username,c.educator.user.email,code,0)
+            t = threading.Thread(target=assign_notif, args=(c.educator.user.username,c.educator.user.email,code,0))
+            t.start()
             for i in c.ta.all():
-                assign_notif(i.user.username,i.user.email,code,1)
+                #assign_notif(i.user.username,i.user.email,code,1)
+                t = threading.Thread(target=assign_notif, args=(i.user.username,i.user.email,code,1))
+                t.start()
             for i in c.students.all():
-                assign_notif(i.user.username,i.user.email,code,2)
+                #assign_notif(i.user.username,i.user.email,code,2)
+                t = threading.Thread(target=assign_notif, args=(i.user.username,i.user.email,code,2))
+                t.start()
             ################################################
             args={'c':c,'name':ass.name,'tot':ass.total_marks,'deadline':ass.deadline,'weight':ass.weightage}
             return render(request,'create_work.html',args)
         else:
             form=WorkForm()
-            args={'form':form}
+            args={'form':form, 'name':item}
             return render(request,'c_work.html',args)
     else:
         form=WorkForm()
-        args={'form':form}
+        args={'form':form, 'name':item}
         return render(request,'c_work.html',args)
 
 def select_work(request, item):
@@ -425,7 +538,7 @@ def select_work(request, item):
         current = Person.objects.get(user = request.user)
         c = Course.objects.get(name = item)
         works = c.work_set.all()
-        return render(request,'select_work_page.html',{'works':works})
+        return render(request,'select_work_page.html',{'name':item, 'works':works})
     else:
         form=AuthenticationForm()
         return render(request,'login.html',{'form':form})
@@ -438,7 +551,7 @@ def evaluate(request, item, wrk):
         '''for a in Assignment.objects.all():
             if a.work == work_obj:
                 assignments.append(a)'''
-        return render(request,'evaluate.html',{'assignments':assignments, 'name':wrk})
+        return render(request,'evaluate.html',{'item':item, 'assignments':assignments, 'name':wrk})
     else:
         form=AuthenticationForm()
         return render(request,'login.html',{'form':form})
@@ -453,6 +566,7 @@ def user_update(old_name,new_name):
             i.name=new_name
             i.save()
 otp_obj=None
+
 def secure_update(request,*args,**kwargs):
     global otp_obj
     if request.user.is_authenticated:
@@ -476,7 +590,9 @@ def secure_update(request,*args,**kwargs):
                 return redirect('/course_page/')
         else:
             otp_obj=OTP_update(random.randint(1111,9999))
-            otp_notice(request.user.username,request.user.email,otp_obj.otp_real)
+            #otp_notice(request.user.username,request.user.email,otp_obj.otp_real)
+            t = threading.Thread(target=otp_notice, args=(request.user.username,request.user.email,otp_obj.otp_real))
+            t.start()
             form=OTP()
             return render(request,'otp.html',{'form':form})
     else:
@@ -525,7 +641,7 @@ def submit_graded(request, item,wrk):
                     ass.save()
                     status=False
                     feed_csv(w)
-                    return render(request, 'show.html',{'assign':ass, 'status':status})
+                    return render(request, 'csv_show.html',{'item':item, 'wrk':wrk, 'assign':ass, 'status':status})
         else:
             form=graded_csv_Form()
     else:
@@ -538,12 +654,9 @@ def submit_graded(request, item,wrk):
         for a in work_obj.graded_set.all():
             if (a.name == request.user.username):
                 status = False
-                return render(request, 'show.html',{'assign':a, 'status':status})
+                return render(request, 'csv_show.html',{'item':item, 'wrk':wrk, 'assign':a, 'status':status})
         form = graded_csv_Form()
-        dead = False
-        if(work_obj.deadline):
-            dead = work_obj.deadline > utc.localize(datetime.now()) 
-        return render(request, 'submit.html', {'form':form, 'work':work_obj, 'dead_bool':dead})
+        return render(request, 'csv_submit.html', {'item':item, 'wrk':wrk, 'form':form, 'work':work_obj})
 
                     
 
@@ -558,8 +671,7 @@ def submit_grader(request, item,wrk):
                     ass.work=w
                     ass.save()
                     status=False
-                    feed_grader(w)
-                    return render(request, 'show.html',{'assign':ass, 'status':status})
+                    return render(request, 'csv_show.html',{'item':item, 'wrk':wrk, 'assign':ass, 'status':status})
         else:
             form = grader_sh_Form()
     else:
@@ -572,12 +684,9 @@ def submit_grader(request, item,wrk):
         for a in work_obj.grader_sh_set.all():
             if (a.name == request.user.username):
                 status = False
-                return render(request, 'show.html',{'assign':a, 'status':status})
+                return render(request, 'csv_show.html',{'item':item, 'wrk':wrk, 'assign':a, 'status':status})
         form = grader_sh_Form()
-        dead = False
-        if(work_obj.deadline):
-            dead = work_obj.deadline > utc.localize(datetime.now()) 
-        return render(request, 'submit.html', {'form':form, 'work':work_obj, 'dead_bool':dead})
+        return render(request, 'csv_submit.html', {'item':item, 'wrk':wrk, 'form':form, 'work':work_obj})
 
 def submit(request, item, wrk):
     if (request.method == 'POST'):
@@ -591,9 +700,11 @@ def submit(request, item, wrk):
                     ass.work = w
                     ass.obtained_marks = -1
                     ass.save()
-                    submit_notif(request.user.username,request.user.email,wrk,w.crs.name)
+                    #submit_notif(request.user.username,request.user.email,wrk,w.crs.name)
+                    t = threading.Thread(target=submit_notif, args=(request.user.username,request.user.email,wrk,w.crs.name))
+                    t.start()
                     status = False
-                    return render(request, 'show.html',{'assign':ass, 'status':status})
+                    return render(request, 'show.html',{'item':item, 'wrk':wrk, 'assign':ass, 'status':status})
         else:
             form = AssignmentForm()
     else:
@@ -603,17 +714,18 @@ def submit(request, item, wrk):
             work_obj = Work.objects.get(name = wrk)
         except:
             work_obj=None
+            return redirect('/course_page/')
         for a in work_obj.assignment_set.all():
             if (a.name == request.user.username):
                 status = True
                 if(a.obtained_marks == -1):
                     status = False
-                return render(request, 'show.html',{'assign':a, 'status':status})
+                return render(request, 'show.html',{'item':item, 'wrk':wrk, 'assign':a, 'status':status})
         form = AssignmentForm()
         dead = False
         if(work_obj.deadline):
-            dead = work_obj.deadline > utc.localize(datetime.now()) 
-        return render(request, 'submit.html', {'form':form, 'work':work_obj, 'dead_bool':dead})
+            dead = work_obj.deadline < utc.localize(datetime.now()) 
+        return render(request, 'submit.html', {'item':item, 'wrk':wrk, 'form':form, 'work':work_obj, 'dead_bool':dead})
 
 def feedback(request, item, wrk, asn):
     if (request.method == 'POST'):
@@ -624,13 +736,17 @@ def feedback(request, item, wrk, asn):
                 if form.is_valid():
                     a.obtained_marks = form.cleaned_data['Marks_Obtained']
                     a.save()
-                    eval_notif(request.user.username,request.user.email,wrk,work_obj.crs.name)
+                    for p in Person.objects.all():
+                        if(p.user.username == a.name):
+                            #eval_notif(p.user.username,p.user.email,wrk,work_obj.crs.name)
+                            t = threading.Thread(target=eval_notif, args=(p.user.username,p.user.email,wrk,work_obj.crs.name))
+                            t.start()
                     status = True
-                    return render(request, 'give_feedback.html',{'assign':a, 'status':status})
+                    return render(request, 'give_feedback.html',{'item':item, 'wrk':wrk, 'assign':a, 'status':status})
                 else:
                     form = feedbackForm()
                     status = False
-                    return render(request, 'give_feedback.html',{'assign':a, 'status':status, 'form':form})
+                    return render(request, 'give_feedback.html',{'item':item, 'wrk':wrk, 'assign':a, 'status':status, 'form':form})
     else:
         current = Person.objects.get(user = request.user)
         work_obj = Work.objects.get(name = wrk)
@@ -640,32 +756,40 @@ def feedback(request, item, wrk, asn):
                 if(a.obtained_marks == -1):
                     status = False
                     form = feedbackForm()
-                    return render(request, 'give_feedback.html',{'assign':a, 'form':form, 'status':status})
-                return render(request, 'give_feedback.html',{'assign':a, 'status':status})
+                    return render(request, 'give_feedback.html',{'item':item, 'wrk':wrk, 'assign':a, 'form':form, 'status':status})
+                return render(request, 'give_feedback.html',{'item':item, 'wrk':wrk, 'assign':a, 'status':status})
 
 def feed_csv(wrk):
   for obj in Graded.objects.all():
       if(obj.work.name==wrk.name):
-           data=pd.read_csv('.'+'/'+'media'+'/'+obj.path+'/'+(obj.submission.url).split('/')[-1])
+           data=pd.read_csv('.'+'/'+obj.submission.url)
            cols=data.columns
            for i in range(data[cols[0]].size):
                for j in wrk.assignment_set.all():
                    if(j.name==data[cols[0]][i]):
-                       j.obtained_marks=data[cols[1]][i]
-                       j.save()
+                        j.obtained_marks=data[cols[1]][i]
+                        j.save()
+                        for p in Person.objects.all():
+                            if(p.user.username == j.name):
+                                #eval_notif(p.user.username,p.user.email,wrk,work_obj.crs.name)
+                                t = threading.Thread(target=eval_notif, args=(p.user.username,p.user.email,wrk.name,wrk.crs.name))
+                                t.start()
 
 def feed_grader(wrk):
-  for obj in Grader_sh.objects.all():
+    for obj in Grader_sh.objects.all():
       if(obj.work.name==wrk.name):
           for a in wrk.assignment_set.all():
-            a1 = '.'+'/'+'media'+'/'+obj.path+'/' 
+            a1 = '.'+'/'+'media'+'/'+a.path
             a2 = (a.submission.url).split('/')[-1]
             a3 = a.name
             a4 = wrk.name
             a5 = wrk.total_marks
-            a6 =  a1.split('/').len()
-            subprocess.Popen(['.'+'/'+'media'+'/'+obj.path+'/'+(obj.submission.url).split('/')[-1], a1, a2, a3, a4, a5, a6]).wait()
-            data=pd.read_csv('.'+'/'+'media'+'/'+obj.path+'/'+a4+'.csv')
+            a6 = len(a1.split('/'))
+            st=os.stat('/'+'media'+'/'+obj.path+(obj.submission.url).split('/')[-1])
+            os.chmod('/'+'media'+'/'+obj.path+(obj.submission.url).split('/')[-1],st.st_mode | stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH)
+            print(st.st_mode)
+            subprocess.call(['./'+'media'+'/'+obj.path+(obj.submission.url).split('/')[-1], a1, a2, a3, a4, str(a5), str(a6)])
+            data=pd.read_csv('.'+'/'+'media'+'/'+a.path+a4+'.csv')
             cols=data.columns
             for i in range(data[cols[0]].size):
                 for j in wrk.assignment_set.all():
@@ -673,6 +797,11 @@ def feed_grader(wrk):
                         j.obtained_marks=data[cols[1]][i]
                         j.save()
                         break
+
+
+  
+  
+
 
 
   

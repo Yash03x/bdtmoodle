@@ -1,0 +1,41 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>stats</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable({{data|safe}});
+
+        var options = {
+          title: 'Distribution of marks in assignment '+{{name|safe}},
+          legend: { position: 'none' },
+        };
+
+        var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>
+    <p style="text-align:right;">
+      <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{item}}/evaluate_work/{{wrk}}/">Back</a>
+    </p>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+    <hr>
+    {% for key, value in dict.items %} 
+        <li>
+            {{ key }}     :     {{value}}
+        </li>
+    {% endfor %}
+    
+
+</div> 
+{% endblock %}
+
+

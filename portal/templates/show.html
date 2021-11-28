@@ -7,8 +7,11 @@
 {% block page_content %}
 <div class="container">
     <br/>  
+    <p style="text-align:right;">
+        <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{item}}/">Back</a>
+    </p>
     <p style="text-align:center;">
-        <h4>Your {{ assign.work.crs.name }}'s {{ assign.work.name }} submission .........<!--<a href= "/course_page/">Back to Course Page</a></h4>--> 
+        <h4>Your {{ assign.work.crs.name }}'s {{ assign.work.name }} submission ......... 
     </p>
     <br/>
     <a href="{{ assign.submission.url }}" class='btn btn-primary btn-sm'>View Submission</a>

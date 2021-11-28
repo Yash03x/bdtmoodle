@@ -1,0 +1,18 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>show_assignment</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>
+    <p style="text-align:right;">
+        <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{item}}/evaluate_work/{{wrk}}">Back</a>
+    </p>
+    <H4>Your {{ assign.work.crs.name }}'s {{ assign.work.name }} csv grading file is Submitted</H4>
+    <!--<H4>Your {{ assign.work.crs.name }}'s {{ assign.work.name }} grader file is Submitted</H4>-->
+    <br/>
+    <a href="{{ assign.submission.url }}" class='btn btn-primary btn-sm'>View Submitted grader</a>
+</div> 
+{% endblock %}

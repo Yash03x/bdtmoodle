@@ -1,31 +1,26 @@
 {% extends 'loggedin.html' %}
 
 {% block head %}
-        <title>submit_assignment</title>
+        <title>submit_grader</title>
 {% endblock %}
 
 {% block page_content %}
 <div class="container">
-    <br/>
+    <br/> 
     <p style="text-align:right;">
-        <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{item}}/">Back</a>
-    </p>  
+        <a role="button" class="btn btn-primary btn-lg" href="/course_page/{{item}}/evaluate_work/{{wrk}}">Back</a>
+    </p>
     <p style="text-align:center;">
-        <h4>Course {{ work.crs.name }} has an assignment released, Upload your submission here</h4>
         <h5>Name: {{ work.name }}</h5>
-        <h5>Deadline: {{ work.deadline }}</h5>
-        <!--############################################-->
         <h5>Weightage: {{work.weightage}}</h5>
+        <h5>Submit grader csv file</h5> 
+        <!--<h5>Submit grader csv/bash script file</h5>-->
     </p>
     <br/>
-    {% if dead_bool %}
-    <h4>DEADLINE PASSED</h4>
-    {% else %}
     <form method='POST' enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary btn-lg">Submit</button>
     </form>
-    {% endif %}
 </div> 
 {% endblock %}
