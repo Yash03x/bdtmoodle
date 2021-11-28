@@ -1,0 +1,16 @@
+{% extends 'main_home.html' %}
+
+{% block head %}
+        <title>loggedout_login</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <h1 style="font-size:300%;">Enter Credentials</h1>  
+    <form method="POST">
+       {% csrf_token %}
+       {{ form.as_p }}
+       <button type="submit" class="btn btn-primary btn-lg">Login</button>
+    </form>
+</div>  
+{% endblock %}

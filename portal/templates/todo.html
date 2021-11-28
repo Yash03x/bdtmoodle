@@ -1,0 +1,31 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{to_do}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <!--<h1 style="font-size:200%;">{{Person.user.username}}</h1> -->
+    <p style="text-align:center;">
+        <h4>To Evaluate</h4>
+        <br/>
+        <p style="text-align:center;">
+            {% for e in eval %}
+            <li>
+                <a role="button" class="btn btn-outline-primary btn-lg" href="/course_page/{{e.crs.name}}/evaluate_work/{{e.name}}/">{{e.name}}</a>
+            </li>
+            {% endfor %}
+        </p>
+        <br/>
+        <h5>To Attempt</h5>
+        {% for a in attempt %}
+        <li>
+            <a role="button" class="btn btn-outline-primary btn-lg" href="/course_page/{{a.crs.name}}/{{a.name}}/">{{a.name}}</a>
+        </li>
+        {% endfor %}
+    </p>
+
+</div> 
+{% endblock %}

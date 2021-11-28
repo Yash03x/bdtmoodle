@@ -1,0 +1,24 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{add_Student}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <h4>ADD STUDENTS</h4>
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            {% for u in people %}
+            <li>
+                <input type="checkbox" value="{{ u.user.username }}">{{ u.user.username }}
+            </li>
+            {% endfor %}
+            <input type="text" name="chkvalue"/>
+            <input type="submit" value="Insert Record"/>
+        </form>
+    </p>
+</div> 
+{% endblock %}

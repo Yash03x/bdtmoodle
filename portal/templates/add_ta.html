@@ -1,0 +1,25 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{add_TA}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <h4>ADD TA's</h4>
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            {% for u in people %}
+            <li>
+                <input type="checkbox" value="{{ u.user.username }}">{{ u.user.username }}
+            </li>
+            {% endfor %}
+            <input type="text" name="chkvalue"/>
+            <input type="submit" value="Insert Record"/>
+        </form>
+        <!--<a role="button" class="btn btn-primary btn-lg" href= "members/">Back to Members</a>-->
+    </p>
+</div> 
+{% endblock %}

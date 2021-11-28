@@ -1,0 +1,17 @@
+{% extends 'base.html' %}   
+        {% block head %}
+        <title>loggedin_dashboard</title>
+        {% endblock %}
+
+        {% block body %}
+        <p style="text-align:center;">
+        <a role="button" class="btn btn-primary btn-lg" onclick="location.href='{% url "pass_update" %}'">Update Profile</a>
+        <a role="button" class="btn btn-primary btn-lg" onclick="location.href='{% url "course_page" %}'">Course Page</a>
+        <a role="button" class="btn btn-primary btn-lg" onclick="location.href='{% url "logout" %}'">Logout</a>
+        </p>
+        <br/>
+        </div>
+       {% endblock %}
+
+       {% block page_content %}
+       {% endblock %}

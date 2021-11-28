@@ -1,0 +1,22 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>select_work</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <!--<h1 style="font-size:200%;">{{Person.user.username}}</h1> -->
+    <p style="text-align:center;">
+        <h4>Assignments To Evaluate!</h4>
+        {% for u in works %}
+        <br/>
+        <li>
+            <a role="button" class="btn btn-outline-primary btn-lg" href="{{u.name}}/">{{u.name}}</a>
+        </li>
+        {% endfor %}
+    </p>
+
+</div> 
+{% endblock %}

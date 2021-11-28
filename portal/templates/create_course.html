@@ -1,0 +1,22 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>create_course</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>  
+    <p style="text-align:center;">
+        <h4>Course Created</h4>
+    </p>
+    <p>
+        <h5>Educator : {{ cs.educator.user.username }}</h5>
+        <h5>Course Name : {{ cs.name }}</h5>
+        <h5>Can TA add/remove Members : {{ cs.mem_ta_allowed }}</h5>
+        <h5>Can TA create Assignments : {{ cs.create_ta_allowed }}</h5>
+        <br/>
+        <!--<a role="button" class="btn btn-primary btn-lg" href= "course_page">Back to Course Page</a>-->
+    </p>
+</div> 
+{% endblock %}

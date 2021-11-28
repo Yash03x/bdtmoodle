@@ -1,0 +1,21 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>create_course</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>  
+    <p style="text-align:center;">
+        <h4>Create a Course</h4>
+    </p>
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value='Create'></input>
+        </form>
+    </p>
+</div> 
+{% endblock %}

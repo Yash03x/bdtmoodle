@@ -1,0 +1,41 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>course_forum</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>  
+    <h4>{{ item }}'s Course Forum</h4>
+    <p>
+    {% for t in txt %} 
+        <li>
+            {{t}}
+        </li>
+    {% endfor %}
+    </p>
+    {% if ed_bool %}
+    <p>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="text" name="chkvalue" required=true/>
+          <input type="submit" value="Send"/>
+        </form>
+      </p>    
+    {% else %}
+        {% if allowed %}
+        <p>
+          <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="chkvalue" required=true/>
+            <input type="submit" value="Send"/>
+          </form>
+        </p>
+        {% else %}
+        <br/>
+        <p>FORUM DISABLED</p>
+        {% endif %}
+    {% endif %}
+</div> 
+{% endblock %}

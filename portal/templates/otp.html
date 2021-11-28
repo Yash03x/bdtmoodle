@@ -1,0 +1,14 @@
+
+<div class="container">
+    <br/>  
+    <p style="text-align:center;">
+        <h4>You have only one chance to enter the correct otp</h4>
+        <h5>please generate one more otp in case you entered a wrong otp</h5>
+    </p>
+    <br/>
+    <form method='POST' enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+    </form>
+</div> 

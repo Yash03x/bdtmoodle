@@ -1,0 +1,28 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{name}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>  
+    <p style="text-align:center;">
+        <h4>Chatting with {{name}}</h4>
+    </p>
+    <p>
+    {% for t in txt %} 
+        <li>
+            {{t}}
+        </li>
+    {% endfor %}
+    </p>
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="chkvalue" required=true/>
+            <input type="submit" value="Send"/>
+        </form>
+    </p>
+</div> 
+{% endblock %}

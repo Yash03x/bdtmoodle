@@ -1,0 +1,29 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>Chat</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>  
+    <p style="text-align:center;">
+        <h4>Search People</h4>
+    </p>
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value='Chat'></input>
+        </form>
+    </p>
+    <br/>
+    <h4>Recent Chats</h4>
+        {% for a in active_chats %}
+        <li>
+            <a role="button" class="btn btn-outline-primary btn-lg" href="{{a}}/">{{a}}</a>
+        </li>
+        <br/>
+        {% endfor %}
+</div> 
+{% endblock %}

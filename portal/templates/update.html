@@ -1,0 +1,16 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>change-password</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <h1 style="font-size:300%;">You are {{ current.username }},Change your profile data here</h1>  
+    <form method="POST">
+       {% csrf_token %}
+       {{ form.as_p }}
+       <button type="submit" class="btn btn-primary btn-lg">change</button>
+    </form>
+</div>  
+{% endblock %}

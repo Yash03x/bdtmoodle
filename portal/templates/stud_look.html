@@ -1,0 +1,49 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{c.name}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <!--<h1 style="font-size:200%;">{{Person.user.username}}</h1> -->
+    <p style="text-align:center;">
+        <p style="text-align:center;">
+            <a role="button" class="btn btn-primary btn-lg" href="course_chat">Course Forum</a>
+            <!--#####################################-->
+            <a role="button" class="btn btn-primary btn-lg" href="grades">Grades</a>
+        </p>
+        <h4>{{c.name}}'s Student's Handle</h4>
+        <br/>
+        <h4>Announcements!</h4>
+        <p style="text-align:center;">
+            {% for a in announce %}
+            <li>
+                {{ a.content }}
+            </li>
+            {% endfor %}
+        </p>
+        <br/>
+        <h4>Assignments To Do!</h4>
+        <p style="text-align:center;">
+            <h5>Access by Code</h5>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value='Access Assignment'></input>
+            </form>
+            <br/>
+            <br/>
+        </p>
+        <h5>Select from Below</h5>
+        {% for u in works %}
+        <br/>
+        <li>
+            <a role="button" class="btn btn-outline-primary btn-lg" href="{{u.name}}/">{{u.name}}</a>
+        </li>
+        {% endfor %}
+    </p>
+
+</div> 
+{% endblock %}

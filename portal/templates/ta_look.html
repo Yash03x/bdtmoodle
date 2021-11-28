@@ -1,0 +1,45 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{c.name}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <!--<h1 style="font-size:200%;">{{Person.user.username}}</h1> -->
+    <p style="text-align:center;">
+        <p style="text-align:center;">
+            {% if c.mem_ta_allowed %}
+               <a role="button" class="btn btn-primary btn-lg" href="members">Members</a>
+            {% endif %}
+            {% if c.create_ta_allowed %}
+               <a role="button" class="btn btn-primary btn-lg" href="create_work">Create Assignment</a>
+            {% endif %}
+            <a role="button" class="btn btn-primary btn-lg" href="evaluate_work">Evaluate Assignments</a>
+            <a role="button" class="btn btn-primary btn-lg" href="course_chat">Course Forum</a>
+            <!--#####################################-->
+            <a role="button" class="btn btn-primary btn-lg" href="statistics">Statistics</a>
+        </p>
+        <h4>{{c.name}}'s Teaching Assistant's Handle</h4>
+        <br/>
+        <h4>Announcements!</h4>
+        <p style="text-align:center;">
+            {% for a in announce %}
+            <li>
+                {{ a.content }}
+            </li>
+            {% endfor %}
+        </p>
+        <br/>
+        <h5>Assignments to Evaluate</h5>
+        {% for u in works %}
+        <br/>
+        <li>
+            <a role="button" class="btn btn-outline-primary btn-lg" href="evaluate_work/{{u.name}}/">{{u.name}}</a>
+        </li>
+        {% endfor %}
+    </p>
+
+</div> 
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>give_feedback</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/>  
+    <p style="text-align:center;">
+        <h4>{{ assign.name }}'s {{ assign.work.name }} submission........... <a href= "/evaluate_work/{{ assign.work.name }}/">Back to Class Submissions</a></h4>
+    </p>
+    <br/>
+    <a href="{{ assign.submission.url }}" class='btn btn-primary btn-sm'>View Submission</a>
+    <br/>
+    <br/>
+    {% if status %}
+        <h5>Status : Evaluated!</h5>
+        <br/>
+        <h5>Marks : {{ assign.obtained_marks }}/{{ assign.work.total_marks }}</h5>
+    {% else %}
+        <h5>Status : Not Evaluated yet!</h5>
+        <br/>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary btn-lg">Submit Feedback</button>
+        </form>
+    {% endif %}
+</div> 
+{% endblock %}

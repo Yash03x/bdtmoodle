@@ -1,0 +1,36 @@
+{% extends 'loggedin.html' %}
+
+{% block head %}
+        <title>{{members}}</title>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <br/> 
+    <p style="text-align:center;">
+        <h4>TA Members</h4>
+        <a role="button" class="btn btn-primary btn-lg" href="add_ta/">Add TA's</a>
+        <a role="button" class="btn btn-primary btn-lg" href="remove_ta/">Remove TA's</a>
+    </p>
+    <p>
+        {% for t in tas %}
+        <li>
+            {{ t.user.username }}
+        </li>
+        {% endfor %}
+        <br/>
+    </p>
+    <p>
+        <h4>Students</h4>
+        <a role="button" class="btn btn-primary btn-lg" href="add_stud/">Add Students</a>
+        <a role="button" class="btn btn-primary btn-lg" href="remove_stud/">Remove Students</a>
+    </p>
+    <p>
+        {% for s in studs %}
+        <li>
+            {{ s.user.username }}
+        </li>
+        {% endfor %} 
+    </p>
+</div> 
+{% endblock %}
